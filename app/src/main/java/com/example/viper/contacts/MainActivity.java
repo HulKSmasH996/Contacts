@@ -33,6 +33,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -64,8 +65,9 @@ public class MainActivity extends Activity {
                 }
 
                 Person p = getItem(position);
-                ((TextView)convertView.findViewById(R.id.name)).setText(p.getName().toString());
-                ((TextView)convertView.findViewById(R.id.email)).setText(p.getMail());
+                ((TextView)convertView.findViewById(R.id.name)).setText(p.getName());
+                ((TextView)convertView.findViewById(R.id.email)).setText(p.getNumber());
+                ((TextView)convertView.findViewById(R.id.number)).setText(p.getMail());
 
                 return convertView;
             }
@@ -81,8 +83,10 @@ public class MainActivity extends Activity {
 //                return person.getName().toLowerCase().startsWith(mask) || person.getEmail().toLowerCase().startsWith(mask);
 //            }
 
+      }
 
-    }
+
+
 
     public void readContacts(){
         phoneContactsList.clear();
