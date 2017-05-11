@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,15 +20,29 @@ import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static java.security.AccessController.getContext;
 
 public class MainActivity extends Activity {
     private static final int PERMISSION_REQUEST_CONTACT = 1;
+    Person phoneContacts;
+    ArrayAdapter<Person> adapter;
+    //ContactsCompletionView completionView;
+    private List<Person> phoneContactsList=new ArrayList<Person>();
 
     /** Called when the activity is first created. */
     @Override
@@ -36,9 +51,21 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         //readContacts();
         askForContactPermission();
+        adapter = new ArrayAdapter<Person>(MainActivity.this, R.layout.contact_layout, phoneContactsList) {
+
+
+
+//            @Override
+//            protected boolean keepObject(Person person, String mask) {
+//                mask = mask.toLowerCase();
+//                return person.getName().toLowerCase().startsWith(mask) || person.getEmail().toLowerCase().startsWith(mask);
+//            }
+        };
+
     }
 
     public void readContacts(){
+        phoneContactsList.clear();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -49,6 +76,8 @@ public class MainActivity extends Activity {
                         cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(
                         ContactsContract.Contacts.DISPLAY_NAME));
+                phoneContacts=new Person();
+                phoneContacts.setName(name);
 
 
 //                if (cur.getInt(cur.getColumnIndex(
@@ -67,18 +96,19 @@ public class MainActivity extends Activity {
 //                    pCur.close();
 //                }
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                   // System.out.println("name : " + name + ", ID : " + id);
+                    System.out.println("name : " + name + ", ID : " + id);
 
                     // get the phone number
-                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+                   Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
                             new String[]{id}, null);
-                    while (pCur.moveToNext()) {
+                   while (pCur.moveToNext()) {
                         String phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                        Toast.makeText(getApplicationContext(), "Name: " + name
-//                               + ", Phone No: " + phone, Toast.LENGTH_SHORT).show();
-                       // System.out.println("phone" + phone);
+                       phoneContacts.setNumber(phone);
+                        Toast.makeText(getApplicationContext(), "Name: " + name
+                               + ", Phone No: " + phone, Toast.LENGTH_SHORT).show();
+                        System.out.println("phone" + phone);
                     }
                     pCur.close();
 
@@ -101,6 +131,8 @@ public class MainActivity extends Activity {
                                + ", Email: " + email, Toast.LENGTH_LONG).show();
 
                         System.out.println("Email " + email + " Email Type : " + emailType);
+                        phoneContacts.setMail(email);
+
 
                     }
                     emailCur.close();
@@ -173,6 +205,8 @@ public class MainActivity extends Activity {
 //                    orgCur.close();
 
                 }
+                phoneContactsList.add(phoneContacts);
+
             }
         }}
     public void askForContactPermission(){
