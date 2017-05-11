@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ import static java.security.AccessController.getContext;
 public class MainActivity extends Activity {
     private static final int PERMISSION_REQUEST_CONTACT = 1;
     Person phoneContacts;
+    MultiAutoCompleteTextView multiAutoCompleteTv;
     ArrayAdapter<Person> adapter;
     //ContactsCompletionView completionView;
     private List<Person> phoneContactsList=new ArrayList<Person>();
@@ -53,14 +55,32 @@ public class MainActivity extends Activity {
         askForContactPermission();
         adapter = new ArrayAdapter<Person>(MainActivity.this, R.layout.contact_layout, phoneContactsList) {
 
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (convertView == null) {
 
+                    LayoutInflater l = (LayoutInflater)getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                    convertView = l.inflate(R.layout.contact_layout, parent, false);
+                }
+
+                Person p = getItem(position);
+                ((TextView)convertView.findViewById(R.id.name)).setText(p.getName().toString());
+                ((TextView)convertView.findViewById(R.id.email)).setText(p.getMail());
+
+                return convertView;
+            }
+        };
+        // monthAdapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item, months);
+        multiAutoCompleteTv = (MultiAutoCompleteTextView) findViewById(R.id.multiAutoCompleteTvMonth);
+        multiAutoCompleteTv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        multiAutoCompleteTv.setAdapter(adapter);
 
 //            @Override
 //            protected boolean keepObject(Person person, String mask) {
 //                mask = mask.toLowerCase();
 //                return person.getName().toLowerCase().startsWith(mask) || person.getEmail().toLowerCase().startsWith(mask);
 //            }
-        };
+
 
     }
 
